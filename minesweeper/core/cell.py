@@ -15,6 +15,11 @@ class CellState(Enum):
     REVEALED = 1
 
 
+class RevealCellResult(Enum):
+    ALIVE = 0
+    LOST = 1
+
+
 class Cell(ABC):
     CELL_OBJECT_TYPE = CellObjectType.INVALID
 
@@ -35,6 +40,10 @@ class Cell(ABC):
     def is_eligible_to_reveal_border(self):
         pass
 
+    @abstractmethod
+    def reveal(self):
+        pass
+
 
 class EmptyCell(Cell):
     CELL_OBJECT_TYPE = CellObjectType.EMPTY
@@ -46,12 +55,20 @@ class EmptyCell(Cell):
     def is_eligible_to_reveal_border(self):
         return self.total_mines_in_border == 0 and not self.flagged
 
+    def reveal(self):
+        self.state = CellState.REVEALED
+        return RevealCellResult.ALIVE
+
 
 class MineCell(Cell):
     CELL_OBJECT_TYPE = CellObjectType.MINE
 
     def is_eligible_to_reveal_border(self):
         return False
+
+    def reveal(self):
+        self.state = CellState.REVEALED
+        return RevealCellResult.LOST
 
 
 class InvalidCell(Cell):
@@ -62,6 +79,9 @@ class InvalidCell(Cell):
 
     def is_eligible_to_reveal_border(self):
         return False
+
+    def reveal(self):
+        return RevealCellResult.ALIVE
 
 
 class CellObjectFactory:

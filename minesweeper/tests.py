@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from minesweeper.core.cell import CellObjectFactory, CellObjectType, CellState
+from minesweeper.core.cell import CellObjectFactory, CellObjectType, CellState, RevealCellResult
+from minesweeper.core.game import MinesweeperGame
 
 
 class CellTests(TestCase):
@@ -31,3 +32,27 @@ class CellTests(TestCase):
     def test_MineCell_WillNeverBeEligibleToRevealBorder(self):
         mine_cell = CellObjectFactory.instance(CellObjectType.MINE, row=0, col=0, state=CellState.HIDED)
         self.assertFalse(mine_cell.is_eligible_to_reveal_border())
+
+    def test_RevealCellResult(self):
+        empty_cell = CellObjectFactory.instance(CellObjectType.EMPTY, row=0, col=0, state=CellState.HIDED)
+        self.assertEqual(empty_cell.reveal(), RevealCellResult.ALIVE)
+
+        mine_cell = CellObjectFactory.instance(CellObjectType.MINE, row=0, col=0, state=CellState.HIDED)
+        self.assertEqual(mine_cell.reveal(), RevealCellResult.LOST)
+
+
+class GameTest(TestCase):
+
+    def test_CreateGame_GameParamsMustBeValidOrExceptionWillBeRaised(self):
+        # invalid rows number
+        with self.assertRaises(ValueError):
+            game = MinesweeperGame(-3, 50, 10)
+
+        # invalid cols number
+        with self.assertRaises(ValueError):
+            game = MinesweeperGame(50, -3, 10)
+
+        # invalid mines number
+        with self.assertRaises(ValueError):
+            game = MinesweeperGame(50, 50, -8)
+
