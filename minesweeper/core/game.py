@@ -37,10 +37,16 @@ class MinesweeperGame:
         else:
             raise ValueError('Game cannot be created. Invalid params values.')
 
+    def set_mine_at(self, i, j):
+        self.board.add_mine(i, j)
+
     def cell(self, i, j):
         return self.board.cell(i, j)
 
     def reveal(self, i, j):
+        if self.state == GameState.NEW:
+            self.state = GameState.STARTED
+
         cell = self.cell(i, j)
         reveal_result = cell.reveal()
         {
@@ -81,25 +87,10 @@ class MinesweeperGame:
 
     def reveal_borders(self, cell):
         if cell.is_eligible_to_reveal_borders():
-            for row, col in self.all_positions_candidated_to_be_revealed_from(cell):
+            for row, col in self.board.all_positions_candidated_to_be_revealed_from(cell):
                 cell_to_reveal = self.board.cell(row, col)
 
                 if cell_to_reveal.can_be_revealed() and not cell_to_reveal.is_a_mine():
                     cell_to_reveal.reveal()
                     self.register_empty_cell_revealed()
                     self.reveal_borders(cell_to_reveal)
-
-    def all_positions_candidated_to_be_revealed_from(self, cell):
-        i = cell.row
-        j = cell.col
-
-        return [
-            (i - 1, j - 1),
-            (i - 1, j),
-            (i - 1, j + 1),
-            (i, j + 1),
-            (i + 1, j + 1),
-            (i + 1, j),
-            (i + 1, j - 1),
-            (i, j - 1),
-        ]

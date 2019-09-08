@@ -17,16 +17,22 @@ class GameBoard:
             raise ValueError('Game cannot be created. Invalid params values.')
 
     def _create_board(self):
-        return [[CellObjectFactory.instance(CellObjectType.EMPTY, row, column) for row in range(self.rows)] for column
-                in range(self.cols)]
+        return [[CellObjectFactory.instance(CellObjectType.EMPTY, row, column) for column in range(self.cols)] for row
+                in range(self.rows)]
 
     def is_valid(self, row, col):
         return 0 <= row < self.rows and 0 <= col < self.cols
 
     def add_mine(self, row, col):
-        if self.is_valid(row, col):
+        if self.is_valid(row, col) and not self.cell(row, col).is_a_mine():
             self.mines_number += 1
-            self.board[row][col] = CellObjectFactory.instance(CellObjectType.MINE, row=row, col=col)
+            mine_cell = CellObjectFactory.instance(CellObjectType.MINE, row=row, col=col)
+            self.board[row][col] = mine_cell
+            self.increase_mines_in_border_from(mine_cell)
+
+    def increase_mines_in_border_from(self, cell):
+        for i, j in self.all_positions_candidated_to_be_revealed_from(cell):
+            self.cell(i, j).register_new_mine_in_border()
 
     def cell(self, row, col):
         return self.board[row][col] if self.is_valid(row, col) else CellObjectFactory.instance(CellObjectType.INVALID,
@@ -38,11 +44,10 @@ class GameBoard:
     def can_add_mine_to(self, row, col):
         return self.cell(row, col).can_swap_to_mine()
 
-    def remove_mines(self):
+    def remove_all_mines(self):
         for i in range(self.rows):
             for j in range(self.cols):
-                if self.cell(i, j).is_a_mine():
-                    self.board[i][j] = CellObjectFactory.instance(CellObjectType.EMPTY, i, j)
+                self.board[i][j] = CellObjectFactory.instance(CellObjectType.EMPTY, i, j)
 
         self.mines_number = 0
 
@@ -50,3 +55,18 @@ class GameBoard:
         for i in range(self.rows):
             for j in range(self.cols):
                 self.cell(i, j).reveal()
+
+    def all_positions_candidated_to_be_revealed_from(self, cell):
+        i = cell.row
+        j = cell.col
+
+        return [
+            (i - 1, j - 1),
+            (i - 1, j),
+            (i - 1, j + 1),
+            (i, j + 1),
+            (i + 1, j + 1),
+            (i + 1, j),
+            (i + 1, j - 1),
+            (i, j - 1),
+        ]

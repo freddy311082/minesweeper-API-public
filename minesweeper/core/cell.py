@@ -55,6 +55,10 @@ class Cell(ABC):
     def _reveal_result(self):
         pass
 
+    @abstractmethod
+    def register_new_mine_in_border(self):
+        pass
+
 
 class EmptyCell(Cell):
     CELL_OBJECT_TYPE = CellObjectType.EMPTY
@@ -71,6 +75,9 @@ class EmptyCell(Cell):
 
     def can_swap_to_mine(self):
         return True
+
+    def register_new_mine_in_border(self):
+        self.total_mines_in_border += 1
 
 
 class MineCell(Cell):
@@ -89,6 +96,9 @@ class MineCell(Cell):
     def _reveal_result(self):
         return RevealCellResult.LOST
 
+    def register_new_mine_in_border(self):
+        pass
+
 
 class InvalidCell(Cell):
     """ Null Pattern implementation. """
@@ -101,6 +111,9 @@ class InvalidCell(Cell):
 
     def _reveal_result(self):
         return RevealCellResult.INVALID
+
+    def register_new_mine_in_border(self):
+        pass
 
 
 class CellObjectFactory:
