@@ -18,6 +18,7 @@ class CellState(Enum):
 class RevealCellResult(Enum):
     ALIVE = 0
     LOST = 1
+    INVALID = 2
 
 
 class Cell(ABC):
@@ -99,7 +100,7 @@ class InvalidCell(Cell):
         return False
 
     def _reveal_result(self):
-        return RevealCellResult.ALIVE
+        return RevealCellResult.INVALID
 
 
 class CellObjectFactory:

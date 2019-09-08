@@ -8,6 +8,7 @@ TOTAL_ROWS = 50
 TOTAL_COLS = 50
 TOTAL_MINES = 15
 
+
 class CellTests(TestCase):
 
     def test_EmptyCell_CanBeRevealed_RevealedCellsCannotBeRevealed(self):
@@ -71,6 +72,11 @@ class GameBoardTest(TestCase):
 
 class GameTest(TestCase):
 
+    def _assert_all_cells_revealed(self, game):
+        for i in range(game.board.rows):
+            for j in range(game.board.cols):
+                self.assertEqual(game.board.cell(i, j).state, CellState.REVEALED)
+
     def test_CreateGame_RaiseExceptionIfAtLeastOneParamIsNotValid(self):
         # invalid rows number
         with self.assertRaises(ValueError):
@@ -100,4 +106,16 @@ class GameTest(TestCase):
 
     def test_RevealCell_FailIfCellPositionIsNotValid(self):
         game = MinesweeperGame(TOTAL_ROWS, TOTAL_COLS, 1, state=GameState.NEW)
-        game.reveal(-1, 4)
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(game.reveal(-5, 3), RevealCellResult.INVALID)
+
+    def test_RevealCell_LostTheGameIfMineCellIsRevealed(self):
+        game = MinesweeperGame(TOTAL_ROWS, TOTAL_COLS, 1, state=GameState.NEW)
+        game.board.remove_mines()
+        game.board.add_mine(0, 0)
+        game.reveal(0, 0)
+
+        self.assertEqual(game.state, GameState.LOST)
+        self._assert_all_cells_revealed(game)
+

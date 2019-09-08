@@ -41,14 +41,29 @@ class MinesweeperGame:
         return self.board.cell(i, j)
 
     def reveal(self, i, j):
-        reveal_result = self.board.cell(i, j).reveal()
+        reveal_result = self.cell(i, j).reveal()
+        {
+            RevealCellResult.LOST: self.notify_lost,
+            RevealCellResult.INVALID: self.notify_invalid_cell,
+            RevealCellResult.ALIVE: self.empty_cell_revealed
+        }[reveal_result](i, j)
 
-        if reveal_result == RevealCellResult.LOST: # mine revealed
-            self.state = GameState.LOST
-            self.stop_game()
-
-    def stop_game(self):
+    def end_game(self):
         self.board.reveal_all()
         self.ended_at = datetime.now()
+
+    def notify_lost(self, row, col):
+        self.state = GameState.LOST
+        self.end_game()
+
+    def notify_invalid_cell(self, row, col):
+        raise ValueError("Cell ({},{}) cannot be revealed as it's not valid".format(row, col))
+
+    def notify_win(self):
+        self.end_game()
+        self.state = GameState.WIN
+
+    def empty_cell_revealed(self, row, col):
+        pass
 
 
