@@ -37,3 +37,16 @@ class GameBoard:
 
     def can_add_mine_to(self, row, col):
         return self.cell(row, col).can_swap_to_mine()
+
+    def remove_mines(self):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if self.cell(i, j).is_a_mine():
+                    self.board[i][j] = CellObjectFactory.instance(CellObjectType.EMPTY, i, j)
+
+        self.mines_number = 0
+
+    def reveal_all(self):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                self.cell(i, j).reveal()

@@ -40,15 +40,19 @@ class Cell(ABC):
     def is_eligible_to_reveal_border(self):
         pass
 
-    @abstractmethod
-    def reveal(self):
-        pass
-
     def can_swap_to_mine(self):
         return False
 
     def is_a_mine(self):
         return False
+
+    def reveal(self):
+        self.state = CellState.REVEALED
+        return self._reveal_result()
+
+    @abstractmethod
+    def _reveal_result(self):
+        pass
 
 
 class EmptyCell(Cell):
@@ -61,8 +65,7 @@ class EmptyCell(Cell):
     def is_eligible_to_reveal_border(self):
         return self.total_mines_in_border == 0 and not self.flagged
 
-    def reveal(self):
-        self.state = CellState.REVEALED
+    def _reveal_result(self):
         return RevealCellResult.ALIVE
 
     def can_swap_to_mine(self):
@@ -82,6 +85,9 @@ class MineCell(Cell):
     def is_a_mine(self):
         return True
 
+    def _reveal_result(self):
+        return RevealCellResult.LOST
+
 
 class InvalidCell(Cell):
     """ Null Pattern implementation. """
@@ -92,7 +98,7 @@ class InvalidCell(Cell):
     def is_eligible_to_reveal_border(self):
         return False
 
-    def reveal(self):
+    def _reveal_result(self):
         return RevealCellResult.ALIVE
 
 
