@@ -43,7 +43,7 @@ class CellTests(TestCase):
 
 class GameTest(TestCase):
 
-    def test_CreateGame_GameParamsMustBeValidOrExceptionWillBeRaised(self):
+    def test_CreateGame_RaiseExceptionIfAtLeastOneParamIsNotValid(self):
         # invalid rows number
         with self.assertRaises(ValueError):
             game = MinesweeperGame(-3, 50, 10)
@@ -55,4 +55,18 @@ class GameTest(TestCase):
         # invalid mines number
         with self.assertRaises(ValueError):
             game = MinesweeperGame(50, 50, -8)
+
+    def test_CreateGame_ValidIfAllEmptyCellsAndMinesWereCreated(self):
+        game = MinesweeperGame(50, 50, 15)
+
+        total_mines = 0
+        for i in range(game.board.rows):
+            for j in range(game.board.cols):
+                cell = game.cell(i, j)
+                self.assertEqual(cell.state, CellState.HIDED)
+
+                if cell.is_a_mine():
+                    total_mines += 1
+
+        self.assertEqual(total_mines, 15)
 

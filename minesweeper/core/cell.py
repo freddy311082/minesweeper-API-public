@@ -44,6 +44,12 @@ class Cell(ABC):
     def reveal(self):
         pass
 
+    def can_swap_to_mine(self):
+        return False
+
+    def is_a_mine(self):
+        return False
+
 
 class EmptyCell(Cell):
     CELL_OBJECT_TYPE = CellObjectType.EMPTY
@@ -59,6 +65,9 @@ class EmptyCell(Cell):
         self.state = CellState.REVEALED
         return RevealCellResult.ALIVE
 
+    def can_swap_to_mine(self):
+        return True
+
 
 class MineCell(Cell):
     CELL_OBJECT_TYPE = CellObjectType.MINE
@@ -69,6 +78,9 @@ class MineCell(Cell):
     def reveal(self):
         self.state = CellState.REVEALED
         return RevealCellResult.LOST
+
+    def is_a_mine(self):
+        return True
 
 
 class InvalidCell(Cell):
