@@ -38,7 +38,7 @@ class Cell(ABC):
         return self.state == CellState.HIDED
 
     @abstractmethod
-    def is_eligible_to_reveal_border(self):
+    def is_eligible_to_reveal_borders(self):
         pass
 
     def can_swap_to_mine(self):
@@ -63,7 +63,7 @@ class EmptyCell(Cell):
         super(EmptyCell, self).__init__(row, col, state, flagged)
         self.total_mines_in_border = total_mines_in_border
 
-    def is_eligible_to_reveal_border(self):
+    def is_eligible_to_reveal_borders(self):
         return self.total_mines_in_border == 0 and not self.flagged
 
     def _reveal_result(self):
@@ -76,7 +76,7 @@ class EmptyCell(Cell):
 class MineCell(Cell):
     CELL_OBJECT_TYPE = CellObjectType.MINE
 
-    def is_eligible_to_reveal_border(self):
+    def is_eligible_to_reveal_borders(self):
         return False
 
     def reveal(self):
@@ -96,7 +96,7 @@ class InvalidCell(Cell):
     def can_be_revealed(self):
         return False
 
-    def is_eligible_to_reveal_border(self):
+    def is_eligible_to_reveal_borders(self):
         return False
 
     def _reveal_result(self):

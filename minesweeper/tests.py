@@ -28,15 +28,15 @@ class CellTests(TestCase):
     def test_EmptyCell_IsEligibleToRevealBorder_FalseIfExistsAtLeastOneMineInTheBorder(self):
         empty_cell = CellObjectFactory.instance(CellObjectType.EMPTY, row=0, col=0, state=CellState.HIDED,
                                                 total_mines_in_border=1)
-        self.assertFalse(empty_cell.is_eligible_to_reveal_border())
+        self.assertFalse(empty_cell.is_eligible_to_reveal_borders())
 
     def test_EmptyCell_IsEligibleToRevealBorder_TrueIfDoesntHaveAtLeastOneMineInTheBorder(self):
         empty_cell = CellObjectFactory.instance(CellObjectType.EMPTY, row=0, col=0, state=CellState.HIDED)
-        self.assertTrue(empty_cell.is_eligible_to_reveal_border())
+        self.assertTrue(empty_cell.is_eligible_to_reveal_borders())
 
     def test_MineCell_WillNeverBeEligibleToRevealBorder(self):
         mine_cell = CellObjectFactory.instance(CellObjectType.MINE, row=0, col=0, state=CellState.HIDED)
-        self.assertFalse(mine_cell.is_eligible_to_reveal_border())
+        self.assertFalse(mine_cell.is_eligible_to_reveal_borders())
 
     def test_RevealCellResult(self):
         empty_cell = CellObjectFactory.instance(CellObjectType.EMPTY, row=0, col=0, state=CellState.HIDED)
@@ -72,6 +72,18 @@ class GameBoardTest(TestCase):
 
 class GameTest(TestCase):
 
+    def _game(self, rows=TOTAL_ROWS, cols=TOTAL_COLS, mines=TOTAL_MINES):
+        return MinesweeperGame(rows, cols, mines, state=GameState.NEW)
+
+    def _unrevealed_cells(self, game):
+        result = []
+        for i in range(game.board.rows):
+            for j in range(game.board.cols):
+                if game.board.cell(i, j).state == CellState.HIDED:
+                    result.append((i, j))
+
+        return result
+
     def _assert_all_cells_revealed(self, game):
         for i in range(game.board.rows):
             for j in range(game.board.cols):
@@ -80,15 +92,15 @@ class GameTest(TestCase):
     def test_CreateGame_RaiseExceptionIfAtLeastOneParamIsNotValid(self):
         # invalid rows number
         with self.assertRaises(ValueError):
-            game = MinesweeperGame(-3, 50, 10, state=GameState.NEW)
+            _ = MinesweeperGame(-3, 50, 10, state=GameState.NEW)
 
         # invalid cols number
         with self.assertRaises(ValueError):
-            game = MinesweeperGame(50, -3, 10, state=GameState.NEW)
+            _ = MinesweeperGame(50, -3, 10, state=GameState.NEW)
 
         # invalid mines number
         with self.assertRaises(ValueError):
-            game = MinesweeperGame(50, 50, -8, state=GameState.NEW)
+            _ = MinesweeperGame(50, 50, -8, state=GameState.NEW)
 
     def test_CreateGame_ValidIfAllEmptyCellsAndMinesWereCreated(self):
         game = MinesweeperGame(TOTAL_ROWS, TOTAL_COLS, TOTAL_MINES, state=GameState.NEW)
@@ -105,17 +117,28 @@ class GameTest(TestCase):
         self.assertEqual(total_mines, TOTAL_MINES)
 
     def test_RevealCell_FailIfCellPositionIsNotValid(self):
-        game = MinesweeperGame(TOTAL_ROWS, TOTAL_COLS, 1, state=GameState.NEW)
+        game = self._game()
 
         with self.assertRaises(ValueError):
             self.assertEqual(game.reveal(-5, 3), RevealCellResult.INVALID)
 
     def test_RevealCell_LostTheGameIfMineCellIsRevealed(self):
-        game = MinesweeperGame(TOTAL_ROWS, TOTAL_COLS, 1, state=GameState.NEW)
+        game = self._game()
         game.board.remove_mines()
         game.board.add_mine(0, 0)
         game.reveal(0, 0)
 
         self.assertEqual(game.state, GameState.LOST)
         self._assert_all_cells_revealed(game)
+
+    def test_RevealCell_WinTheGameIfAllEmptyCellsWereRevealed(self):
+        game = self._game(4, 4, 2)
+        game.board.remove_mines()
+        game.board.add_mine(0, 0)
+        game.reveal(0, 1)
+
+        print(self._unrevealed_cells(game))
+        self.assertEqual(game.state, GameState.WIN)
+        self._assert_all_cells_revealed(game)
+
 

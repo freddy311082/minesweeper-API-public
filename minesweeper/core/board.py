@@ -21,7 +21,7 @@ class GameBoard:
                 in range(self.cols)]
 
     def is_valid(self, row, col):
-        return 0 <= row <= self.rows and 0 <= col < self.cols
+        return 0 <= row < self.rows and 0 <= col < self.cols
 
     def add_mine(self, row, col):
         if self.is_valid(row, col):
