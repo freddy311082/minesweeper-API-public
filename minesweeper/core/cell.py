@@ -22,27 +22,45 @@ class Cell(ABC):
     def is_type(cls, obj_type):
         return cls.CELL_OBJECT_TYPE == obj_type
 
-    def __init__(self, row, col, state=CellState.HIDED):
+    def __init__(self, row, col, state=CellState.HIDED, flagged=False):
         self.row = row
         self.col = col
         self.state = state
+        self.flagged = flagged
 
     def can_be_revealed(self):
         return self.state == CellState.HIDED
+
+    @abstractmethod
+    def is_eligible_to_reveal_border(self):
+        pass
 
 
 class EmptyCell(Cell):
     CELL_OBJECT_TYPE = CellObjectType.EMPTY
 
+    def __init__(self, row, col, state=CellState.HIDED, flagged=False, total_mines_in_border=0):
+        super(EmptyCell, self).__init__(row, col, state, flagged)
+        self.total_mines_in_border = total_mines_in_border
+
+    def is_eligible_to_reveal_border(self):
+        return self.total_mines_in_border == 0 and not self.flagged
+
 
 class MineCell(Cell):
     CELL_OBJECT_TYPE = CellObjectType.MINE
+
+    def is_eligible_to_reveal_border(self):
+        return False
 
 
 class InvalidCell(Cell):
     """ Null Pattern implementation. """
 
     def can_be_revealed(self):
+        return False
+
+    def is_eligible_to_reveal_border(self):
         return False
 
 
