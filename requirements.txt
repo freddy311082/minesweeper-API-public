@@ -1,0 +1,4 @@
+Django
+graphene
+graphene-django
+django-session-csrf
