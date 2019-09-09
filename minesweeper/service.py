@@ -5,7 +5,7 @@ from minesweeper.models import DBManager
 
 class Service:
 
-    def __init__(self, current_user):
+    def __init__(self, current_user=None):
         self.user = current_user
         self.db_manager = DBManager()
 
@@ -20,3 +20,6 @@ class Service:
     def assert_is_admin(self):
         #TODO:  check if current user is the admin
         pass
+
+    def users(self):
+        return self.db_manager.users()

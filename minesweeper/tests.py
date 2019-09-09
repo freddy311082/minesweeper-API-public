@@ -1,8 +1,10 @@
 from django.test import TestCase
+from graphene.test import Client
 
 from minesweeper.core.board import GameBoard
 from minesweeper.core.cell import CellObjectFactory, CellObjectType, CellState, RevealCellResult
 from minesweeper.core.game import MinesweeperGame, GameState
+from minesweeper.gql import minesweeper_schema
 
 TOTAL_ROWS = 50
 TOTAL_COLS = 50
@@ -226,3 +228,49 @@ class GameTest(TestCase):
 
         self.assertEqual(game.state, GameState.WIN)
 
+
+class GraphQlAPIIntegrationTests(TestCase):
+
+    def setUp(self):
+        self.client = Client(minesweeper_schema)
+
+    def _create_user(self, username, password, email):
+        mutation = """mutation {
+                              createUser(username:"{0}", password:"{1}", email:"{2}") {
+                                ok
+                                error
+                                user {
+                                  username
+                                }
+                              }
+                            }"""
+
+        return self.client.execute(mutation.replace('{0}', username).replace('{1}', password).replace('{2}', email))
+
+    def _all_users(self):
+        query = """{
+                      users {
+                        username
+                      }
+                    }"""
+
+        return self.client.execute(query)
+
+    def test_createUser(self):
+        result = self._create_user('user1', 'mypass', 'myemail@email.com')
+        self.assertTrue(result['data']['createUser']['ok'])
+        self.assertIsNone(result['data']['createUser']['error'])
+        self.assertEqual(result['data']['createUser']['user']['username'], 'user1')
+
+    def test_listAllUsers(self):
+        self._create_user('user1', 'mypass', 'email1@email.com')
+        self._create_user('user2', 'mypass', 'email2@email.com')
+        self._create_user('user3', 'mypass', 'email3@email.com')
+
+        expected_users = {'user1', 'user2', 'user3'}
+        received_users = set()
+
+        for user in self._all_users()['data']['users']:
+            received_users.add(user['username'])
+
+        self.assertEqual(expected_users, received_users)

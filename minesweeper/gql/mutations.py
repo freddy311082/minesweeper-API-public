@@ -15,10 +15,10 @@ class CreateUser(graphene.Mutation):
     user = graphene.Field(lambda: UserType)
 
     @staticmethod
-    def mutate(root, _, password, first_name, last_name, email):
+    def mutate(root, _, username, password,  email):
         try:
             service = Service()
-            user = service.create_user(username=None,
+            user = service.create_user(username=username,
                                        password=password,
                                        email=email)
             return CreateUser(ok=True, error=None, user=user)

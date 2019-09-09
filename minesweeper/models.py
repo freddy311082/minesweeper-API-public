@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
 
@@ -18,8 +19,11 @@ class Game(models.Model):
 class DBManager:
 
     def create_user(self, username, password, email):
-        u, result = get_user_model().get_or_create(username=username, password=password, email=email)
-        if result:
-            return u
+        user = get_user_model().objects.create(username=username, password=password, email=email)
+        if user:
+            return user
 
         raise ValueError('Error creating the new user {}.'.format(username))
+
+    def users(self):
+        return User.objects.all()
