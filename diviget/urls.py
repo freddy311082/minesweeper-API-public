@@ -21,5 +21,5 @@ from minesweeper.gql import minesweeper_schema
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('graphql', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=minesweeper_schema)))
+    path('graphql', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=minesweeper_schema))),
 ]
