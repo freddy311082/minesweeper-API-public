@@ -3,3 +3,4 @@ graphene
 graphene-django
 django-session-csrf
 django-cors-headers
+django-graphql-jwt

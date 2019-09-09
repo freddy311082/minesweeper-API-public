@@ -94,3 +94,6 @@ class MinesweeperGame:
                     cell_to_reveal.reveal()
                     self.register_empty_cell_revealed()
                     self.reveal_borders(cell_to_reveal)
+
+    def board_to_string(self):
+        return str(self.board)

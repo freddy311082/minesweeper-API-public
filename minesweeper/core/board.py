@@ -70,3 +70,13 @@ class GameBoard:
             (i + 1, j - 1),
             (i, j - 1),
         ]
+
+    def __str__(self):
+        board_str = ''
+
+        for i in range(self.rows):
+            for j in range(self.cols):
+                board_str += str(self.board[i][j])
+            board_str += '\n'
+
+        return board_str

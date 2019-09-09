@@ -79,6 +79,9 @@ class EmptyCell(Cell):
     def register_new_mine_in_border(self):
         self.total_mines_in_border += 1
 
+    def __str__(self):
+        return str(self.total_mines_in_border)
+
 
 class MineCell(Cell):
     CELL_OBJECT_TYPE = CellObjectType.MINE
@@ -99,6 +102,9 @@ class MineCell(Cell):
     def register_new_mine_in_border(self):
         pass
 
+    def __str__(self):
+        return 'M'
+
 
 class InvalidCell(Cell):
     """ Null Pattern implementation. """
@@ -114,6 +120,9 @@ class InvalidCell(Cell):
 
     def register_new_mine_in_border(self):
         pass
+
+    def __str__(self):
+        return 'I'
 
 
 class CellObjectFactory:

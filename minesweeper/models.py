@@ -27,3 +27,14 @@ class DBManager:
 
     def users(self):
         return User.objects.all()
+
+    def user_games(self, user_id):
+        games = Game.objects.filter(user_id__exact=user_id)
+        return games
+
+    def create_new_game(self, user_id, num_rows, num_cols, num_mines, board, state='NEW'):
+        user = User.objects.get(pk=user_id)
+        game = Game(board=board, rows=num_rows, cols=num_cols, state=state)
+        game.user = user
+        game.save()
+        return game
